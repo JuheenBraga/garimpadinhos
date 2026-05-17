@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Garimpadinhos – Achadinhos com Amor para Você</title>
+  <meta name="description" content="Produtos lindos, práticos e com preços que cabem no bolso! Achadinhos selecionados com amor para o seu lar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* =============================================
+       VARIÁVEIS E RESET
+    ============================================= */
+    :root {
+      --rosa-claro:   #f7e8e0;
+      --rosa-medio:   #e8c4b0;
+      --rosa-forte:   #d4856a;
+      --rosa-btn:     #c97a62;
+      --verde-sage:   #7a8c6e;
+      --verde-escuro: #5c6b52;
+      --marrom:       #5a3e32;
+      --creme:        #fdf6f0;
+      --branco:       #ffffff;
+      --texto:        #4a3728;
+      --texto-suave:  #8a7060;
+      --sombra:       0 4px 20px rgba(90,62,50,0.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--rosa-claro);
+      color: var(--texto);
+      line-height: 1.6;
+      /* xadrez de fundo sutil */
+      background-image:
+        repeating-conic-gradient(rgba(216,180,160,0.18) 0% 25%, transparent 0% 50%);
+      background-size: 40px 40px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+
+    /* =============================================
+       TOPO ANÚNCIO
+    ============================================= */
+    .top-bar {
+      background: var(--rosa-medio);
+      text-align: center;
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      color: var(--marrom);
+    }
+
+    /* =============================================
+       CABEÇALHO
+    ============================================= */
+    header {
+      background: var(--creme);
+      padding: 20px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--sombra);
+      border-bottom: 2px solid var(--rosa-medio);
+    }
+
+    .header-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .header-logo h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--marrom);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-logo h1 span.heart { color: var(--rosa-forte); font-size: 0.7em; }
+
+    .header-logo .tagline {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--verde-sage);
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--rosa-claro);
+      border: 1.5px solid var(--rosa-medio);
+      border-radius: 50px;
+      padding: 6px 14px;
+      gap: 8px;
+    }
+
+    .search-wrap input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      color: var(--texto);
+      width: 160px;
+    }
+
+    .search-wrap input::placeholder { color: var(--texto-suave); }
+
+    .search-icon { color: var(--verde-sage); font-size: 1rem; cursor: pointer; }
+
+    /* =============================================
+       NAVEGAÇÃO
+    ============================================= */
+    nav {
+      background: var(--verde-sage);
+      padding: 0 5%;
+    }
+
+    nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    nav ul li a {
+      display: block;
+      padding: 13px 20px;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--creme);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    nav ul li a:hover,
+    nav ul li a.active {
+      background: var(--verde-escuro);
+      color: #fff;
+    }
+
+    /* Hambúrguer mobile */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 14px 5%;
+      width: 100%;
+      text-align: left;
+      font-size: 1.4rem;
+      color: var(--creme);
+    }
+
+    /* =============================================
+       HERO BANNER
+    ============================================= */
+    .hero {
+      background: var(--creme);
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      padding: 50px 5%;
+      position: relative;
+      overflow: hidden;
+      min-height: 360px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--creme) 55%, var(--rosa-claro) 100%);
+    }
+
+    .hero-text { position: relative; max-width: 480px; }
+
+    .hero-text .pre {
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--texto-suave);
+      margin-bottom: 8px;
+    }
+
+    .hero-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      line-height: 1.15;
+      color: var(--marrom);
+    }
+
+    .hero-text .cursive {
+      font-family: 'Dancing Script', cursive;
+      color: var(--rosa-forte);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .hero-text p {
+      margin: 18px 0 28px;
+      color: var(--texto-suave);
+      font-size: 1rem;
+      max-width: 360px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--verde-sage);
+      color: #fff;
+      padding: 13px 32px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      transition: background 0.2s, transform 0.15s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover { background: var(--verde-escuro); transform: translateY(-2px); }
+
+    .hero-img {
+      position: relative;
+      flex: 1;
+      max-width: 560px;
+      min-height: 260px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .hero-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    /* placeholder se não houver imagem */
+    .hero-placeholder {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(135deg, var(--rosa-medio), var(--rosa-claro));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+
+    /* =============================================
+       CATEGORIAS (filtros)
+    ============================================= */
+    .section { padding: 50px 5%; }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .section-title h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      color: var(--marrom);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .section-title h3::before,
+    .section-title h3::after {
+      content: '✦';
+      color: var(--rosa-forte);
+      font-size: 0.7em;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 36px;
+    }
+
+    .filter-btn {
+      background: var(--creme);
+      border: 1.5px solid var(--rosa-medio);
+      color: var(--texto-suave);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--verde-sage);
+      border-color: var(--verde-sage);
+      color: #fff;
+    }
+
+    /* =============================================
+       GRID DE PRODUTOS
+    ============================================= */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .product-card {
+      background: var(--branco);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--sombra);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(90,62,50,0.16);
+    }
+
+    .product-img-wrap {
+      position: relative;
+      padding-top: 80%;
+      background: var(--rosa-claro);
+      overflow: hidden;
+    }
+
+    .product-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+
+    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+
+    .product-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--rosa-forte);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: 50px;
+      text-transform: uppercase;
+    }
+
+    .product-info {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 6px;
+    }
+
+    .product-category {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--verde-sage);
+      font-weight: 700;
+    }
+
+    .product-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      color: var(--marrom);
+      line-height: 1.3;
+    }
+
+    .product-desc {
+      font-size: 0.78rem;
+      color: var(--texto-suave);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .product-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--rosa-forte);
+      margin-top: 6px;
+    }
+
+    .btn-shopee {
+      display: block;
+      text-align: center;
+      background: var(--rosa-btn);
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 10px;
+    }
+
+    .btn-shopee:hover { background: var(--rosa-forte); transform: translateY(-1px); }
+
+    /* =============================================
+       NENHUM RESULTADO
+    ============================================= */
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--texto-suave);
+      font-size: 1rem;
+      display: none;
+    }
+
+    /* =============================================
+       BANNER RODAPÉ (trust badges)
+    ============================================= */
+    .trust-bar {
+      background: var(--creme);
+      border-top: 2px solid var(--rosa-medio);
+      border-bottom: 2px solid var(--rosa-medio);
+      padding: 30px 5%;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 24px;
+    }
+
+    .trust-item {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trust-icon { font-size: 1.8rem; }
+
+    .trust-item strong {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--marrom);
+    }
+
+    .trust-item span {
+      font-size: 0.72rem;
+      color: var(--texto-suave);
+    }
+
+    /* =============================================
+       RODAPÉ
+    ============================================= */
+    footer {
+      background: var(--marrom);
+      color: rgba(255,255,255,0.8);
+      text-align: center;
+      padding: 28px 5%;
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+
+    footer a { color: var(--rosa-medio); }
+
+    footer .footer-logo {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    /* =============================================
+       RESPONSIVO
+    ============================================= */
+    @media (max-width: 768px) {
+      .nav-toggle { display: block; background: var(--verde-sage); }
+      nav ul { display: none; flex-direction: column; }
+      nav ul.open { display: flex; }
+      nav ul li a { padding: 12px 5%; border-top: 1px solid rgba(255,255,255,0.1); }
+
+      .hero { flex-direction: column; padding: 36px 5%; }
+      .hero-img { width: 100%; max-width: 100%; }
+
+      .search-wrap input { width: 120px; }
+
+      header { padding: 14px 5%; }
+    }
+
+    @media (max-width: 480px) {
+      .products-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 14px; }
+      .section { padding: 36px 4%; }
+      .search-wrap { display: none; } /* esconde busca no header pequeno, fica no conteúdo */
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== BARRA TOPO ===== -->
+<div class="top-bar">
+  🌸 Achadinhos que encantam e facilitam o seu dia a dia 🤍
+</div>
+
+<!-- ===== CABEÇALHO ===== -->
+<header>
+  <div class="header-logo">
+    <h1>Garimpadinhos<span class="heart">♥</span></h1>
+    <span class="tagline">Achadinhos com amor para você</span>
+  </div>
+  <div class="header-actions">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar produto…" oninput="renderProducts()" />
+    </div>
+  </div>
+</header>
+
+<!-- ===== NAVEGAÇÃO ===== -->
+<button class="nav-toggle" onclick="toggleNav()">☰ Categorias</button>
+<nav>
+  <ul id="navMenu">
+    <li><a href="#produtos" class="active" onclick="filterCategory('Todos')">Início</a></li>
+    <li><a href="#produtos" onclick="filterCategory('Todos')">Todos os Produtos</a></li>
+    <li><a href="#produtos" onclick="filterCategory('Casa e Decoração')">Casa e Decoração</a></li>
+    <li><a href="#produtos" onclick="filterCategory('Cozinha')">Cozinha</a></li>
+    <li><a href="#produtos" onclick="filterCategory('Beleza')">Beleza</a></li>
+    <li><a href="#produtos" onclick="filterCategory('Acessórios')">Acessórios</a></li>
+    <li><a href="#produtos" onclick="filterCategory('Organização')">Organização</a></li>
+  </ul>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-text">
+    <p class="pre">Seleção Especial de</p>
+    <h2>Achadinhos<br><span class="cursive">para o seu lar</span></h2>
+    <p>Produtos lindos, práticos e com preços que cabem no bolso!</p>
+    <a href="#produtos" class="btn-primary">Ver Produtos</a>
+  </div>
+  <div class="hero-img">
+    <div class="hero-placeholder">🌸</div>
+  </div>
+</section>
+
+<!-- ===== PRODUTOS ===== -->
+<section class="section" id="produtos">
+  <div class="section-title">
+    <h3>Produtos em Destaque</h3>
+  </div>
+
+  <!-- Filtros de categoria -->
+  <div class="filters" id="filterBtns"></div>
+
+  <!-- Grid dinâmico -->
+  <div class="products-grid" id="productsGrid"></div>
+  <p class="no-results" id="noResults">Nenhum produto encontrado. 🌸</p>
+</section>
+
+<!-- ===== TRUST BAR ===== -->
+<div class="trust-bar">
+  <div class="trust-grid">
+    <div class="trust-item">
+      <span class="trust-icon">🛡️</span>
+      <strong>Compra Segura</strong>
+      <span>Redirecionamos para a Shopee</span>
+    </div>
+    <div class="trust-item">
+      <span class="trust-icon">🚚</span>
+      <strong>Envio Rápido</strong>
+      <span>Entrega direto na sua casa</span>
+    </div>
+    <div class="trust-item">
+      <span class="trust-icon">⭐</span>
+      <strong>Qualidade Garantida</strong>
+      <span>Produtos selecionados com cuidado</span>
+    </div>
+    <div class="trust-item">
+      <span class="trust-icon">💰</span>
+      <strong>Os Melhores Preços</strong>
+      <span>Achadinhos que cabem no bolso</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RODAPÉ ===== -->
+<footer>
+  <div class="footer-logo">Garimpadinhos ♥</div>
+  <p>Achadinhos com amor para você · <a href="https://garimpadinhos.shop">garimpadinhos.shop</a></p>
+  <p style="margin-top:6px;font-size:0.72rem;opacity:0.6;">
+    Links de afiliados — ao comprar pela Shopee por meio deste site, você apoia o projeto sem custo extra. 🌸
+  </p>
+</footer>
+
+<!-- =============================================
+     ✏️  ÁREA DE GERENCIAMENTO DE PRODUTOS
+     Edite apenas este bloco para adicionar,
+     remover ou atualizar produtos.
+
+     Campos de cada produto:
+       id        → número único (incremente)
+       name      → nome do produto
+       category  → deve coincidir com uma das categorias do nav
+                   (Casa e Decoração | Cozinha | Beleza | Acessórios | Organização)
+       price     → ex: "R$ 49,90"
+       desc      → descrição curta
+       img       → URL da imagem (pode ser link do Google Drive, Cloudinary, etc.)
+                   Deixe "" para usar emoji padrão
+       badge     → texto do selo (ex: "Novo", "Top Vendas") — deixe "" para nenhum
+       link      → link de afiliado da Shopee
+============================================= -->
+<script>
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "Umidificador de Ar Difusor Aromatizador",
+    category: "Casa e Decoração",
+    price: "R$ 49,90",
+    desc: "Umidifica o ambiente e difunde óleos essenciais. Silencioso e com luz noturna.",
+    img: "",
+    badge: "Top Vendas",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 2,
+    name: "Kit 3 Potes de Vidro com Tampa de Bambu",
+    category: "Cozinha",
+    price: "R$ 59,90",
+    desc: "Perfeitos para organizar temperos, grãos e mantimentos. Design minimalista.",
+    img: "",
+    badge: "",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 3,
+    name: "Mini Liquidificador Portátil",
+    category: "Cozinha",
+    price: "R$ 69,90",
+    desc: "Recarregável via USB, ideal para smoothies e vitaminas na hora que quiser.",
+    img: "",
+    badge: "Novo",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 4,
+    name: "Cesto Organizador Trançado",
+    category: "Organização",
+    price: "R$ 39,90",
+    desc: "Feito à mão em fibra natural. Ótimo para banheiro, sala ou quarto.",
+    img: "",
+    badge: "",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 5,
+    name: "Organizador de Maquiagem com Gavetas",
+    category: "Beleza",
+    price: "R$ 44,90",
+    desc: "Acomoda pincéis, batons, sombras e muito mais. Rosa fofo e prático.",
+    img: "",
+    badge: "Top Vendas",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 6,
+    name: "Porta-Retratos de Madeira Flutuante",
+    category: "Casa e Decoração",
+    price: "R$ 29,90",
+    desc: "Estilo rústico e moderno. Ideal para fotos 10x15 cm.",
+    img: "",
+    badge: "",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 7,
+    name: "Necessaire de Viagem Impermeável",
+    category: "Acessórios",
+    price: "R$ 34,90",
+    desc: "Leve e espaçosa. Cabe higiene pessoal completa e ainda fica linda na bolsa.",
+    img: "",
+    badge: "Novo",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  },
+  {
+    id: 8,
+    name: "Jogo de Toalhas de Rosto Felpudas",
+    category: "Casa e Decoração",
+    price: "R$ 54,90",
+    desc: "Kit com 4 peças em algodão premium. Macias, absorventes e elegantes.",
+    img: "",
+    badge: "",
+    link: "https://shopee.com.br/seu-link-afiliado-aqui"
+  }
+];
+
+/* ── EMOJIS padrão por categoria (quando não há imagem) ── */
+const CATEGORY_EMOJI = {
+  "Casa e Decoração": "🏡",
+  "Cozinha":          "🍳",
+  "Beleza":           "💄",
+  "Acessórios":       "👜",
+  "Organização":      "🗂️"
+};
+
+/* ── Estado ── */
+let activeCategory = "Todos";
+
+/* ── Renderizar filtros ── */
+function renderFilters() {
+  const categories = ["Todos", ...new Set(PRODUCTS.map(p => p.category))];
+  const container = document.getElementById("filterBtns");
+  container.innerHTML = categories.map(cat =>
+    `<button class="filter-btn ${cat === activeCategory ? 'active' : ''}"
+       onclick="filterCategory('${cat}')">${cat}</button>`
+  ).join("");
+}
+
+/* ── Filtrar por categoria ── */
+function filterCategory(cat) {
+  activeCategory = cat;
+  renderFilters();
+  renderProducts();
+}
+
+/* ── Renderizar produtos ── */
+function renderProducts() {
+  const query = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  const grid  = document.getElementById("productsGrid");
+  const none  = document.getElementById("noResults");
+
+  let filtered = PRODUCTS.filter(p => {
+    const matchCat  = activeCategory === "Todos" || p.category === activeCategory;
+    const matchText = !query ||
+      p.name.toLowerCase().includes(query) ||
+      p.desc.toLowerCase().includes(query) ||
+      p.category.toLowerCase().includes(query);
+    return matchCat && matchText;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = "";
+    none.style.display = "block";
+    return;
+  }
+
+  none.style.display = "none";
+  grid.innerHTML = filtered.map(p => {
+    const emoji = CATEGORY_EMOJI[p.category] || "🛍️";
+    const imgHtml = p.img
+      ? `<img src="${p.img}" alt="${p.name}" loading="lazy" />`
+      : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem;">${emoji}</div>`;
+    const badgeHtml = p.badge
+      ? `<span class="product-badge">${p.badge}</span>`
+      : "";
+
+    return `
+      <div class="product-card">
+        <div class="product-img-wrap">
+          ${imgHtml}
+          ${badgeHtml}
+        </div>
+        <div class="product-info">
+          <span class="product-category">${p.category}</span>
+          <h4 class="product-name">${p.name}</h4>
+          <p class="product-desc">${p.desc}</p>
+          <p class="product-price">${p.price}</p>
+          <a href="${p.link}" target="_blank" rel="noopener" class="btn-shopee">
+            🛍️ Ver na Shopee
+          </a>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+/* ── Toggle nav mobile ── */
+function toggleNav() {
+  document.getElementById("navMenu").classList.toggle("open");
+}
+
+/* ── Inicializar ── */
+renderFilters();
+renderProducts();
+</script>
+</body>
+</html>

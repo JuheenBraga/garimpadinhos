@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Garimpadinhos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--rosa-claro:#f7e8e0;--rosa-medio:#e8c4b0;--rosa-forte:#d4856a;--verde:#7a8c6e;--verde-esc:#5c6b52;--marrom:#5a3e32;--creme:#fdf6f0;--texto:#4a3728;--suave:#8a7060;--sombra:0 4px 24px rgba(90,62,50,0.12)}
+    body{font-family:'Lato',sans-serif;background:var(--rosa-claro);background-image:repeating-conic-gradient(rgba(216,180,160,0.18) 0% 25%,transparent 0% 50%);background-size:40px 40px;color:var(--texto);min-height:100vh}
+    /* LOGIN */
+    #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .login-card{background:var(--creme);border-radius:16px;box-shadow:var(--sombra);padding:48px 40px 40px;width:100%;max-width:380px;text-align:center}
+    .logo-title{font-family:'Dancing Script',cursive;font-size:2.2rem;color:var(--marrom);margin-bottom:4px}
+    .logo-title span{color:var(--rosa-forte)}
+    .login-sub{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--verde);font-weight:700;margin-bottom:32px}
+    .login-label{display:block;text-align:left;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);font-weight:700;margin-bottom:6px}
+    .login-input{width:100%;padding:12px 16px;border:1.5px solid var(--rosa-medio);border-radius:8px;background:#fff;font-size:1rem;color:var(--texto);outline:none;transition:border .2s;font-family:'Lato',sans-serif;margin-bottom:16px}
+    .login-input:focus{border-color:var(--verde)}
+    .btn-login{width:100%;padding:13px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Lato',sans-serif}
+    .btn-login:hover{background:var(--verde-esc)}
+    .login-error{color:#c0392b;font-size:.8rem;margin-top:10px;display:none}
+    /* ADMIN */
+    #adminScreen{display:none}
+    .topbar-admin{background:var(--marrom);color:rgba(255,255,255,.85);padding:10px 5%;display:flex;align-items:center;justify-content:space-between}
+    .topbar-logo{font-family:'Dancing Script',cursive;font-size:1.3rem;color:#fff}
+    .topbar-actions{display:flex;gap:8px}
+    .btn-site{padding:5px 14px;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:'Lato',sans-serif;background:var(--verde);border:none;color:#fff;text-decoration:none;display:inline-block}
+    .btn-site:hover{background:var(--verde-esc)}
+    .btn-sair{padding:5px 14px;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:'Lato',sans-serif;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff}
+    .btn-sair:hover{background:rgba(255,255,255,.22)}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 5% 60px}
+    /* TABS */
+    .tabs{display:flex;gap:4px;background:var(--creme);border:1.5px solid var(--rosa-medio);border-radius:50px;padding:4px;margin-bottom:28px;flex-wrap:wrap;width:fit-content}
+    .tab{padding:8px 18px;border-radius:50px;font-size:.78rem;cursor:pointer;border:none;background:transparent;color:var(--suave);font-weight:700;letter-spacing:.06em;font-family:'Lato',sans-serif;transition:all .2s}
+    .tab.on{background:var(--verde);color:#fff}
+    .pnl{display:none}.pnl.on{display:block}
+    /* CARDS */
+    .card{background:var(--creme);border:1.5px solid var(--rosa-medio);border-radius:16px;padding:28px;margin-bottom:20px}
+    .card-title{font-size:.95rem;font-weight:700;color:var(--marrom);margin-bottom:20px;padding-bottom:14px;border-bottom:1.5px solid var(--rosa-medio);display:flex;align-items:center;gap:8px}
+    /* LISTA */
+    .list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .list-head h2{font-size:.95rem;font-weight:700;color:var(--marrom)}
+    .pill{display:inline-block;background:var(--rosa-medio);color:var(--marrom);font-size:.7rem;padding:2px 10px;border-radius:50px;font-weight:700;margin-left:8px}
+    .btn-novo{display:flex;align-items:center;gap:6px;padding:9px 20px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif}
+    .btn-novo:hover{background:var(--verde-esc)}
+    .prod-list{display:flex;flex-direction:column;gap:10px}
+    .prod-item{background:var(--creme);border:1.5px solid var(--rosa-medio);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px}
+    .prod-item:hover{box-shadow:var(--sombra)}
+    .prod-thumb{width:60px;height:60px;border-radius:10px;background:var(--rosa-claro);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:1px solid var(--rosa-medio)}
+    .prod-thumb img{width:100%;height:100%;object-fit:cover}
+    .prod-meta{flex:1;min-width:0}
+    .prod-meta strong{font-size:.9rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .meta-row{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap}
+    .tag{font-size:.68rem;padding:2px 8px;border-radius:50px;background:var(--rosa-claro);color:var(--suave);border:1px solid var(--rosa-medio);font-weight:700}
+    .tag.badge{background:#f7e8e0;color:var(--marrom)}
+    .prod-price{font-size:.95rem;font-weight:700;color:var(--rosa-forte);white-space:nowrap;flex-shrink:0}
+    .prod-acts{display:flex;gap:6px;flex-shrink:0}
+    .ico-btn{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--rosa-medio);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--suave);transition:all .15s}
+    .ico-btn:hover{border-color:var(--verde);color:var(--verde)}
+    .ico-btn.del:hover{border-color:#e74c3c;color:#e74c3c;background:#fdf0f0}
+    .vazio{text-align:center;padding:60px 20px;color:var(--suave);font-size:.9rem;background:var(--creme);border:1.5px dashed var(--rosa-medio);border-radius:12px}
+    /* FORM FIELDS */
+    .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .fcol{grid-column:1/-1}
+    .fld{display:flex;flex-direction:column;gap:6px}
+    .fld label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);font-weight:700}
+    .fld input,.fld select,.fld textarea{padding:11px 14px;border:1.5px solid var(--rosa-medio);border-radius:8px;background:#fff;font-size:.9rem;color:var(--texto);outline:none;font-family:'Lato',sans-serif;transition:border .2s}
+    .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--verde)}
+    .fld textarea{resize:vertical;min-height:80px}
+    /* FOTOS */
+    .photos-box{border:1.5px solid var(--rosa-medio);border-radius:12px;padding:16px;background:#fff}
+    .photos-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .photos-head span{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);font-weight:700}
+    .btn-add-foto{display:flex;align-items:center;gap:5px;padding:6px 14px;background:var(--verde);color:#fff;border:none;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif}
+    .btn-add-foto:hover{background:var(--verde-esc)}
+    .foto-entry{display:flex;gap:10px;align-items:flex-start;background:var(--rosa-claro);border-radius:10px;padding:10px;margin-bottom:8px}
+    .foto-thumb{width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--rosa-medio);display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:1px solid var(--rosa-medio)}
+    .foto-thumb img{width:100%;height:100%;object-fit:cover}
+    .foto-inputs{flex:1;display:flex;flex-direction:column;gap:7px}
+    .type-row{display:flex;gap:4px}
+    .type-btn{padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;cursor:pointer;border:1.5px solid var(--rosa-medio);background:#fff;color:var(--suave);font-family:'Lato',sans-serif;transition:all .15s}
+    .type-btn.on{background:var(--verde);border-color:var(--verde);color:#fff}
+    .url-inp{width:100%;padding:8px 12px;border:1.5px solid var(--rosa-medio);border-radius:7px;font-size:.84rem;font-family:'Lato',sans-serif;outline:none;transition:border .2s}
+    .url-inp:focus{border-color:var(--verde)}
+    .file-lbl{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px dashed var(--rosa-medio);border-radius:7px;background:#fff;cursor:pointer;font-size:.82rem;color:var(--suave);font-family:'Lato',sans-serif;transition:all .15s}
+    .file-lbl:hover{border-color:var(--verde);color:var(--verde)}
+    .foto-ok{font-size:.75rem;color:var(--verde);margin-top:3px}
+    .rm-foto{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--rosa-medio);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--suave);flex-shrink:0;transition:all .15s}
+    .rm-foto:hover{border-color:#e74c3c;color:#e74c3c;background:#fdf0f0}
+    .fotos-vazio{text-align:center;padding:20px;color:var(--suave);font-size:.82rem}
+    /* BADGE */
+    .badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+    .badge-opt{padding:5px 14px;border-radius:50px;font-size:.75rem;cursor:pointer;border:1.5px solid var(--rosa-medio);background:#fff;color:var(--suave);font-weight:700;font-family:'Lato',sans-serif;transition:all .15s}
+    .badge-opt.on{background:var(--rosa-forte);border-color:var(--rosa-forte);color:#fff}
+    .form-acts{display:flex;align-items:center;gap:12px;margin-top:28px;padding-top:24px;border-top:1.5px solid var(--rosa-medio)}
+    .btn-salvar{padding:11px 28px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif}
+    .btn-salvar:hover{background:var(--verde-esc)}
+    .btn-cancel{padding:11px 22px;background:transparent;border:1.5px solid var(--rosa-medio);border-radius:8px;font-size:.82rem;cursor:pointer;color:var(--suave);font-family:'Lato',sans-serif}
+    .btn-cancel:hover{border-color:var(--rosa-forte);color:var(--rosa-forte)}
+    /* CONFIG */
+    .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .cfg-col{grid-column:1/-1}
+    .color-row{display:flex;align-items:center;gap:10px}
+    .color-row input[type=color]{width:44px;height:36px;border:1.5px solid var(--rosa-medio);border-radius:6px;cursor:pointer;padding:2px;background:#fff}
+    .color-row span{font-size:.82rem;color:var(--suave)}
+    .social-row{display:flex;align-items:center;gap:10px}
+    .social-ico{font-size:1.4rem;flex-shrink:0}
+    .banner-prev{width:100%;height:110px;border-radius:10px;border:1.5px dashed var(--rosa-medio);background:var(--rosa-claro);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--suave);font-size:.82rem;margin-top:8px}
+    .banner-prev img{width:100%;height:100%;object-fit:cover}
+    .btn-up-banner{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px dashed var(--rosa-medio);border-radius:8px;background:#fff;cursor:pointer;font-size:.8rem;color:var(--suave);font-family:'Lato',sans-serif;margin-top:8px}
+    .btn-up-banner:hover{border-color:var(--verde);color:var(--verde)}
+    .btn-save-cfg{padding:11px 28px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;margin-top:8px}
+    .btn-save-cfg:hover{background:var(--verde-esc)}
+    /* PUBLICAR */
+    .deploy-opt{border:1.5px solid var(--rosa-medio);border-radius:12px;padding:20px;margin-bottom:16px;background:#fff;cursor:pointer;transition:border .2s}
+    .deploy-opt:hover,.deploy-opt.on{border-color:var(--verde)}
+    .deploy-opt.on{background:#f0f5ec}
+    .deploy-opt h4{font-size:.9rem;font-weight:700;color:var(--marrom);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .deploy-opt p{font-size:.8rem;color:var(--suave);line-height:1.5}
+    .rec{font-size:.65rem;padding:2px 8px;background:var(--verde);color:#fff;border-radius:20px;font-weight:700}
+    .simples{font-size:.65rem;padding:2px 8px;background:var(--rosa-medio);color:var(--marrom);border-radius:20px;font-weight:700}
+    .gh-setup{background:var(--rosa-claro);border-radius:10px;padding:18px;margin-top:12px;display:none}
+    .gh-setup.on{display:block}
+    .gh-setup label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);font-weight:700;display:block;margin-bottom:5px}
+    .gh-setup input{width:100%;padding:9px 12px;border:1.5px solid var(--rosa-medio);border-radius:7px;font-size:.85rem;font-family:'Lato',sans-serif;outline:none;background:#fff;margin-bottom:10px}
+    .gh-setup input:focus{border-color:var(--verde)}
+    .gh-help{font-size:.75rem;color:var(--suave);line-height:1.7;margin-bottom:12px}
+    .gh-help a{color:var(--verde);text-decoration:underline}
+    .btn-test{padding:8px 18px;background:var(--marrom);color:#fff;border:none;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif}
+    .btn-test:hover{background:#3d2a1f}
+    .steps-box{background:var(--rosa-claro);border-radius:10px;padding:18px 20px;margin-bottom:20px}
+    .steps-box ol{padding-left:18px}
+    .steps-box li{font-size:.85rem;color:var(--texto);line-height:1.9}
+    .steps-box li strong{color:var(--verde-esc)}
+    .btn-export{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif}
+    .btn-export:hover{background:var(--verde-esc)}
+    .status-ok{margin-top:16px;padding:14px 18px;background:#eaf3de;border:1px solid #c0dd97;border-radius:8px;font-size:.85rem;color:#3b6d11;display:none}
+    .status-box{margin-top:16px;padding:14px 18px;border-radius:8px;font-size:.85rem;display:none}
+    .status-box.ok{background:#eaf3de;border:1px solid #c0dd97;color:#3b6d11}
+    .status-box.err{background:#fdf0f0;border:1px solid #f5a5a5;color:#c0392b}
+    .status-box.wait{background:#fdf6f0;border:1px solid var(--rosa-medio);color:var(--marrom)}
+    /* TOAST */
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--verde-esc);color:#fff;padding:12px 22px;border-radius:10px;font-size:.85rem;font-weight:700;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;z-index:999}
+    .toast.on{opacity:1;transform:translateY(0)}
+    @media(max-width:600px){.fgrid,.cfg-grid{grid-template-columns:1fr}.tabs{width:100%}.prod-item{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="logo-title">Garimpadinhos <span>♥</span></div>
+    <div class="login-sub">Painel Administrativo</div>
+    <label class="login-label" for="passInput">Senha de acesso</label>
+    <input class="login-input" type="password" id="passInput" placeholder="••••••••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <p class="login-error" id="loginError">Senha incorreta. Tente novamente.</p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen">
+  <div class="topbar-admin">
+    <span class="topbar-logo">Garimpadinhos ♥ <span style="font-family:'Lato',sans-serif;font-size:.72rem;opacity:.7;margin-left:4px">Admin</span></span>
+    <div class="topbar-actions">
+      <a href="/" class="btn-site" target="_blank">Ver site ↗</a>
+      <button class="btn-sair" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab on" onclick="goTab('lista')">📦 Produtos</button>
+      <button class="tab" onclick="goTab('form');resetForm()">＋ Adicionar</button>
+      <button class="tab" onclick="goTab('config')">⚙️ Site</button>
+      <button class="tab" onclick="goTab('pub')">🚀 Publicar</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="pnl on" id="pnl-lista">
+      <div class="list-head">
+        <h2>Produtos <span class="pill" id="cPill">0</span></h2>
+        <button class="btn-novo" onclick="goTab('form');resetForm()">＋ Novo produto</button>
+      </div>
+      <div class="prod-list" id="prodList"></div>
+      <div class="vazio" id="vazio" style="display:none">Nenhum produto ainda.<br>Clique em <strong>＋ Novo produto</strong> para começar.</div>
+    </div>
+
+    <!-- FORM -->
+    <div class="pnl" id="pnl-form">
+      <div class="card">
+        <div class="card-title" id="formTitle">＋ Novo produto</div>
+        <div class="fgrid">
+          <div class="fld fcol">
+            <label>Nome do produto *</label>
+            <input type="text" id="f-name" placeholder="Ex: Umidificador de Ar Aromatizador" />
+          </div>
+          <div class="fld">
+            <label>Categoria *</label>
+            <select id="f-cat">
+              <option value="">Selecionar…</option>
+              <option>Casa e Decoração</option>
+              <option>Cozinha</option>
+              <option>Beleza</option>
+              <option>Acessórios</option>
+              <option>Organização</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>Preço *</label>
+            <input type="text" id="f-price" placeholder="R$ 49,90" />
+          </div>
+          <div class="fld fcol">
+            <label>Descrição</label>
+            <textarea id="f-desc" placeholder="Descrição curta e atrativa do produto…"></textarea>
+          </div>
+
+          <!-- FOTOS -->
+          <div class="fld fcol">
+            <div class="photos-box">
+              <div class="photos-head">
+                <span>📷 Fotos do produto</span>
+                <button class="btn-add-foto" onclick="addFoto()">＋ Adicionar foto</button>
+              </div>
+              <div id="fotosLista">
+                <div class="fotos-vazio" id="fotosVazio">Nenhuma foto. Clique em "＋ Adicionar foto".</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fld fcol">
+            <label>Link afiliado Shopee *</label>
+            <input type="text" id="f-link" placeholder="https://s.shopee.com.br/…" />
+          </div>
+          <div class="fld fcol">
+            <label>Badge (opcional)</label>
+            <div class="badge-row">
+              <button class="badge-opt" onclick="setBadge(this,'')">Nenhum</button>
+              <button class="badge-opt on" onclick="setBadge(this,'Top Vendas')">Top Vendas</button>
+              <button class="badge-opt" onclick="setBadge(this,'Novo')">Novo</button>
+              <button class="badge-opt" onclick="setBadge(this,'Oferta')">Oferta</button>
+              <button class="badge-opt" onclick="setBadge(this,'Favorito')">Favorito</button>
+            </div>
+            <input type="hidden" id="f-badge" value="Top Vendas" />
+            <input type="hidden" id="f-id" value="" />
+          </div>
+        </div>
+        <div class="form-acts">
+          <button class="btn-salvar" onclick="salvarProd()">✓ Salvar produto</button>
+          <button class="btn-cancel" onclick="goTab('lista')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="pnl" id="pnl-config">
+      <div class="card">
+        <div class="card-title">📝 Textos do site</div>
+        <div class="cfg-grid">
+          <div class="fld cfg-col"><label>Aviso do topo</label><input type="text" id="c-topbar" placeholder="🌸 Achadinhos que encantam e facilitam o seu dia a dia 🤍" /></div>
+          <div class="fld cfg-col"><label>Subtítulo do logo</label><input type="text" id="c-tagline" placeholder="Achadinhos com amor para você" /></div>
+          <div class="fld"><label>Banner — título linha 1</label><input type="text" id="c-h1" placeholder="Achadinhos" /></div>
+          <div class="fld"><label>Banner — título linha 2 (cursiva)</label><input type="text" id="c-h2" placeholder="para o seu lar" /></div>
+          <div class="fld cfg-col"><label>Banner — subtexto</label><input type="text" id="c-hsub" placeholder="Produtos lindos, práticos e com preços que cabem no bolso!" /></div>
+          <div class="fld"><label>Texto do botão do banner</label><input type="text" id="c-hbtn" placeholder="Ver Produtos" /></div>
+          <div class="fld"><label>Título da seção de produtos</label><input type="text" id="c-sec" placeholder="Produtos em Destaque" /></div>
+          <div class="fld cfg-col"><label>Texto do rodapé</label><input type="text" id="c-footer" placeholder="Achadinhos com amor para você · garimpadinhos.shop" /></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🖼️ Banner e imagem de destaque</div>
+        <div class="fld">
+          <label>URL da imagem do banner</label>
+          <input type="text" id="c-banner-url" placeholder="https://… ou use o botão abaixo" oninput="prvBanner(this.value)" />
+          <label class="btn-up-banner">
+            📁 Escolher imagem do computador
+            <input type="file" accept="image/*" style="display:none" onchange="uploadBanner(this)" />
+          </label>
+          <div class="banner-prev" id="bannerPrv"><span>Preview do banner</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🖼️ Imagem de fundo</div>
+        <div class="fld">
+          <label>URL da imagem de fundo</label>
+          <input type="text" id="c-bg-img-url" placeholder="https://… ou use o botão abaixo" oninput="prvBgImg(this.value)" />
+          <label class="btn-up-banner">
+            📁 Escolher imagem do computador
+            <input type="file" accept="image/*" style="display:none" onchange="uploadBgImg(this)" />
+          </label>
+          <p style="font-size:.75rem;color:var(--suave);margin-top:6px">Deixe vazio para usar o padrão xadrez. A imagem ficará como fundo de toda a página.</p>
+          <div class="banner-prev" id="bgImgPrv"><span>Preview do fundo</span></div>
+          <button onclick="limparBgImg()" style="margin-top:8px;padding:6px 14px;border:1.5px solid var(--rosa-medio);border-radius:6px;background:#fff;font-size:.75rem;cursor:pointer;color:var(--suave);font-family:'Lato',sans-serif">✕ Remover imagem de fundo</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎨 Cores</div>
+        <div class="cfg-grid">
+          <div class="fld"><label>Cor principal (botões/badges)</label><div class="color-row"><input type="color" id="c-rosa" value="#d4856a" /><span>Rosa / destaques</span></div></div>
+          <div class="fld"><label>Cor de fundo</label><div class="color-row"><input type="color" id="c-bg" value="#f7e8e0" /><span>Fundo geral</span></div></div>
+          <div class="fld"><label>Cor do menu / CTA</label><div class="color-row"><input type="color" id="c-verde" value="#7a8c6e" /><span>Navegação e botões</span></div></div>
+          <div class="fld"><label>Cor dos títulos</label><div class="color-row"><input type="color" id="c-marrom" value="#5a3e32" /><span>Textos e logo</span></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📱 Redes sociais</div>
+        <div class="cfg-grid">
+          <div class="fld">
+            <label>Instagram</label>
+            <div class="social-row"><span class="social-ico">📸</span><input type="text" id="c-insta" placeholder="@garimpadinhos ou link completo" /></div>
+          </div>
+          <div class="fld">
+            <label>WhatsApp (opcional)</label>
+            <div class="social-row"><span class="social-ico">💬</span><input type="text" id="c-whats" placeholder="5519999999999 (só números)" /></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-save-cfg" onclick="salvarConfig()">✓ Salvar configurações</button>
+    </div>
+
+    <!-- PUBLICAR -->
+    <div class="pnl" id="pnl-pub">
+      <div class="card">
+        <div class="card-title">🚀 Publicar site</div>
+        <p style="font-size:.88rem;color:var(--suave);margin-bottom:20px">Escolha como quer publicar as alterações:</p>
+
+        <div class="deploy-opt on" id="opt-manual" onclick="setDeploy('manual')">
+          <h4>⬇ Download manual <span class="simples">Simples</span></h4>
+          <p>Baixa o index.html atualizado e você faz upload no Netlify. Leva 1 minuto.</p>
+        </div>
+
+        <div class="deploy-opt" id="opt-auto" onclick="setDeploy('auto')">
+          <h4>⚡ Publicação automática via GitHub <span class="rec">Recomendado</span></h4>
+          <p>Configure uma vez e o site atualiza sozinho. Sem precisar baixar nada.</p>
+          <div class="gh-setup" id="ghSetup">
+            <div class="gh-help">
+              <strong>Como configurar (1 vez só):</strong><br>
+              1) Crie conta em <a href="https://github.com" target="_blank">github.com</a><br>
+              2) Crie um repositório público chamado <strong>garimpadinhos</strong><br>
+              3) Conecte esse repositório ao Netlify em <em>Site → Build &amp; deploy → Link repository</em><br>
+              4) Gere um token em <em>GitHub → Settings → Developer settings → Tokens (classic)</em> com permissão <strong>repo</strong><br>
+              5) Cole os dados abaixo e clique em Testar.
+            </div>
+            <label>Usuário do GitHub</label>
+            <input type="text" id="gh-user" placeholder="seu-usuario" />
+            <label>Nome do repositório</label>
+            <input type="text" id="gh-repo" placeholder="garimpadinhos" />
+            <label>Token de acesso</label>
+            <input type="password" id="gh-token" placeholder="ghp_…" />
+            <button class="btn-test" onclick="testGH()">Testar conexão</button>
+            <div id="gh-result" style="font-size:.78rem;margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div id="sec-manual">
+          <div class="steps-box">
+            <ol>
+              <li>Clique em <strong>"Baixar index.html"</strong></li>
+              <li>Acesse <strong>netlify.com</strong> e entre na conta</li>
+              <li>Arraste o novo <strong>index.html</strong> na área de deploy do projeto</li>
+              <li>Pronto — site atualizado! 🎉</li>
+            </ol>
+          </div>
+          <button class="btn-export" onclick="baixarHTML()">⬇ Baixar index.html</button>
+          <div class="status-ok" id="st-manual"></div>
+        </div>
+
+        <div id="sec-auto" style="display:none">
+          <div class="steps-box">
+            <ol>
+              <li>Preencha as credenciais do GitHub acima e clique em <strong>Testar conexão</strong></li>
+              <li>No Netlify conecte o repositório (só precisa fazer isso uma vez)</li>
+              <li>Clique em <strong>"Publicar agora"</strong> — o Netlify detecta e atualiza automaticamente ⚡</li>
+            </ol>
+          </div>
+          <button class="btn-export" onclick="deployGH()">⚡ Publicar agora</button>
+          <div class="status-box" id="st-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* AUTH */
+const PWD='Garimpadinhos2026*';
+function doLogin(){
+  if(document.getElementById('passInput').value===PWD){
+    sessionStorage.setItem('ga','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminScreen').style.display='block';
+    init();
+  } else {
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('passInput').value='';
+  }
+}
+function doLogout(){sessionStorage.removeItem('ga');location.reload()}
+if(sessionStorage.getItem('ga')==='1'){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminScreen').style.display='block';
+}
+
+/* DADOS */
+const EMOJIS={"Casa e Decoração":"🏡","Cozinha":"🍳","Beleza":"💄","Acessórios":"👜","Organização":"🗂️"};
+let prods=JSON.parse(localStorage.getItem('gp')||'[]');
+let cfg=JSON.parse(localStorage.getItem('gc')||'{}');
+let editId=null;
+let fotos=[];
+
+function saveP(){localStorage.setItem('gp',JSON.stringify(prods))}
+function saveC(){localStorage.setItem('gc',JSON.stringify(cfg))}
+
+function toast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+/* TABS */
+function goTab(n){
+  document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pnl-'+n).classList.add('on');
+  const i={lista:0,form:1,config:2,pub:3}[n];
+  document.querySelectorAll('.tab')[i].classList.add('on');
+  if(n==='config') carregaCfg();
+}
+
+/* LISTA */
+function renderLista(){
+  const list=document.getElementById('prodList');
+  const vz=document.getElementById('vazio');
+  document.getElementById('cPill').textContent=prods.length;
+  if(!prods.length){list.innerHTML='';vz.style.display='block';return}
+  vz.style.display='none';
+  list.innerHTML=prods.map(p=>{
+    const imgs=p.images||[];
+    const fi=imgs[0]||p.img||'';
+    const em=EMOJIS[p.category]||'🛍️';
+    return `<div class="prod-item">
+      <div class="prod-thumb">${fi?`<img src="${fi}" alt="" onerror="this.style.display='none'">`:`<span>${em}</span>`}</div>
+      <div class="prod-meta">
+        <strong>${p.name}</strong>
+        <div class="meta-row">
+          <span class="tag">${p.category}</span>
+          ${p.badge?`<span class="tag badge">${p.badge}</span>`:''}
+          ${imgs.length>1?`<span class="tag">${imgs.length} fotos</span>`:''}
+        </div>
+      </div>
+      <div class="prod-price">${p.price}</div>
+      <div class="prod-acts">
+        <button class="ico-btn" onclick="editarProd(${p.id})">✏️</button>
+        <button class="ico-btn del" onclick="deletarProd(${p.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* FOTOS */
+function addFoto(val){
+  const id='f'+Date.now()+Math.random().toString(36).slice(2);
+  fotos.push({id,tipo:'url',val:val||''});
+  renderFotos();
+}
+function rmFoto(id){fotos=fotos.filter(f=>f.id!==id);renderFotos()}
+function renderFotos(){
+  const lista=document.getElementById('fotosLista');
+  const vz=document.getElementById('fotosVazio');
+  if(!fotos.length){lista.innerHTML='';if(vz)vz.style.display='block';return}
+  if(vz)vz.style.display='none';
+  lista.innerHTML=fotos.map(f=>`
+    <div class="foto-entry" id="fe_${f.id}">
+      <div class="foto-thumb" id="ft_${f.id}">
+        ${f.val?`<img src="${f.val}" alt="" onerror="this.parentElement.innerHTML='📷'">`:'📷'}
+      </div>
+      <div class="foto-inputs">
+        <div class="type-row">
+          <button class="type-btn ${f.tipo==='url'?'on':''}" onclick="setTipo('${f.id}','url')">🔗 Link</button>
+          <button class="type-btn ${f.tipo==='file'?'on':''}" onclick="setTipo('${f.id}','file')">📁 Arquivo</button>
+        </div>
+        <div id="fi_${f.id}">
+          ${f.tipo==='url'
+            ?`<input class="url-inp" type="text" placeholder="https://…" value="${f.val||''}" oninput="setUrl('${f.id}',this.value)"/>`
+            :`<label class="file-lbl">📁 Escolher imagem<input type="file" accept="image/*" style="display:none" onchange="setFile('${f.id}',this)"></label>
+              ${f.val?`<div class="foto-ok">✓ Imagem carregada</div>`:''}`}
+        </div>
+      </div>
+      <button class="rm-foto" onclick="rmFoto('${f.id}')">✕</button>
+    </div>`).join('');
+}
+function setTipo(id,tipo){
+  const f=fotos.find(x=>x.id===id);if(!f)return;
+  f.tipo=tipo;if(tipo==='url')f.val='';
+  renderFotos();
+}
+function setUrl(id,v){
+  const f=fotos.find(x=>x.id===id);if(!f)return;
+  f.val=v;
+  const th=document.getElementById('ft_'+id);
+  if(th)th.innerHTML=v?`<img src="${v}" alt="" onerror="this.parentElement.innerHTML='📷'">`:'📷';
+}
+function setFile(id,input){
+  const f=fotos.find(x=>x.id===id);if(!f||!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{
+    f.val=e.target.result;
+    const th=document.getElementById('ft_'+id);
+    if(th)th.innerHTML=`<img src="${e.target.result}" alt="">`;
+    const di=document.getElementById('fi_'+id);
+    if(di){const ok=di.querySelector('.foto-ok');if(ok)ok.textContent='✓ Imagem carregada';else di.insertAdjacentHTML('beforeend','<div class="foto-ok">✓ Imagem carregada</div>')}
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+/* FORM */
+function resetForm(){
+  editId=null;fotos=[];
+  ['f-name','f-price','f-desc','f-link'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-cat').value='';
+  document.getElementById('f-badge').value='Top Vendas';
+  document.querySelectorAll('.badge-opt').forEach(b=>b.classList.toggle('on',b.textContent==='Top Vendas'));
+  renderFotos();
+  document.getElementById('formTitle').textContent='＋ Novo produto';
+}
+function editarProd(id){
+  const p=prods.find(x=>x.id===id);if(!p)return;
+  editId=id;
+  document.getElementById('f-name').value=p.name;
+  document.getElementById('f-price').value=p.price;
+  document.getElementById('f-desc').value=p.desc||'';
+  document.getElementById('f-link').value=p.link||'';
+  document.getElementById('f-cat').value=p.category;
+  document.getElementById('f-badge').value=p.badge||'';
+  fotos=[];
+  const imgs=p.images||[];
+  if(!imgs.length&&p.img)imgs.push(p.img);
+  imgs.forEach(v=>fotos.push({id:'f'+Date.now()+Math.random().toString(36).slice(2),tipo:'url',val:v}));
+  renderFotos();
+  document.querySelectorAll('.badge-opt').forEach(b=>b.classList.toggle('on',b.textContent===(p.badge||'Nenhum')||(!p.badge&&b.textContent==='Nenhum')));
+  document.getElementById('formTitle').textContent='✏️ Editando produto';
+  goTab('form');
+}
+function deletarProd(id){
+  if(!confirm('Deletar este produto?'))return;
+  prods=prods.filter(p=>p.id!==id);saveP();renderLista();toast('Produto removido');
+}
+function salvarProd(){
+  const name=document.getElementById('f-name').value.trim();
+  const cat=document.getElementById('f-cat').value;
+  const price=document.getElementById('f-price').value.trim();
+  if(!name||!cat||!price){toast('⚠️ Preencha nome, categoria e preço');return}
+  const images=fotos.map(f=>f.val).filter(Boolean);
+  const p={id:editId||Date.now(),name,category:cat,price,
+    desc:document.getElementById('f-desc').value.trim(),
+    images,img:images[0]||'',
+    link:document.getElementById('f-link').value.trim(),
+    badge:document.getElementById('f-badge').value};
+  if(editId){prods=prods.map(x=>x.id===editId?p:x)}else{prods.push(p)}
+  saveP();renderLista();resetForm();goTab('lista');
+  toast(editId?'✅ Produto atualizado!':'✅ Produto adicionado!');
+}
+function setBadge(btn,v){
+  document.querySelectorAll('.badge-opt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');document.getElementById('f-badge').value=v;
+}
+
+/* CONFIG */
+function carregaCfg(){
+  const s=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v};
+  s('c-topbar',cfg.topbar);s('c-tagline',cfg.tagline);
+  s('c-h1',cfg.h1);s('c-h2',cfg.h2);
+  s('c-hsub',cfg.hsub);s('c-hbtn',cfg.hbtn);
+  s('c-sec',cfg.sec);s('c-footer',cfg.footer);
+  s('c-insta',cfg.insta);s('c-whats',cfg.whats);
+  if(cfg.rosa)document.getElementById('c-rosa').value=cfg.rosa;
+  if(cfg.bg)document.getElementById('c-bg').value=cfg.bg;
+  if(cfg.verde)document.getElementById('c-verde').value=cfg.verde;
+  if(cfg.marrom)document.getElementById('c-marrom').value=cfg.marrom;
+  if(cfg.bannerUrl)prvBanner(cfg.bannerUrl);
+  if(cfg.bgImgUrl)prvBgImg(cfg.bgImgUrl);
+}
+function salvarConfig(){
+  const g=id=>document.getElementById(id)?.value||'';
+  cfg={topbar:g('c-topbar'),tagline:g('c-tagline'),h1:g('c-h1'),h2:g('c-h2'),
+    hsub:g('c-hsub'),hbtn:g('c-hbtn'),sec:g('c-sec'),footer:g('c-footer'),
+    insta:g('c-insta'),whats:g('c-whats'),
+    rosa:g('c-rosa'),bg:g('c-bg'),verde:g('c-verde'),marrom:g('c-marrom'),
+    bannerUrl:cfg.bannerUrl||g('c-banner-url'),
+    bgImgUrl:cfg.bgImgUrl||g('c-bg-img-url')};
+  saveC();toast('✅ Configurações salvas!');
+}
+function prvBanner(url){
+  const el=document.getElementById('bannerPrv');if(!el)return;
+  el.innerHTML=url?`<img src="${url}" alt="" onerror="this.parentElement.innerHTML='<span>Imagem não carregou</span>'">`:'<span>Preview do banner</span>';
+}
+function uploadBanner(input){
+  if(!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{cfg.bannerUrl=e.target.result;prvBanner(e.target.result);toast('Imagem carregada!')};
+  r.readAsDataURL(input.files[0]);
+}
+function prvBgImg(url){
+  const el=document.getElementById('bgImgPrv');if(!el)return;
+  if(url){el.style.backgroundImage=`url('${url}')`;el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.innerHTML='';}
+  else{el.style.backgroundImage='';el.innerHTML='<span>Preview do fundo</span>';}
+}
+function uploadBgImg(input){
+  if(!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{cfg.bgImgUrl=e.target.result;prvBgImg(e.target.result);toast('Imagem de fundo carregada!')};
+  r.readAsDataURL(input.files[0]);
+}
+function limparBgImg(){
+  cfg.bgImgUrl='';
+  const inp=document.getElementById('c-bg-img-url');if(inp)inp.value='';
+  prvBgImg('');toast('Imagem de fundo removida');
+}
+
+/* DEPLOY */
+let deployMode='manual';
+function setDeploy(m){
+  deployMode=m;
+  document.getElementById('opt-manual').classList.toggle('on',m==='manual');
+  document.getElementById('opt-auto').classList.toggle('on',m==='auto');
+  document.getElementById('ghSetup').classList.toggle('on',m==='auto');
+  document.getElementById('sec-manual').style.display=m==='manual'?'block':'none';
+  document.getElementById('sec-auto').style.display=m==='auto'?'block':'none';
+}
+async function testGH(){
+  const user=document.getElementById('gh-user').value.trim();
+  const token=document.getElementById('gh-token').value.trim();
+  const res=document.getElementById('gh-result');
+  if(!user||!token){res.textContent='Preencha usuário e token.';res.style.color='#c0392b';return}
+  res.textContent='Testando…';res.style.color='#7a8c6e';
+  try{
+    const r=await fetch('https://api.github.com/user',{headers:{Authorization:`token ${token}`}});
+    const d=await r.json();
+    if(d.login){
+      res.textContent=`✅ Conectado como ${d.login}`;res.style.color='#3b6d11';
+      localStorage.setItem('ghu',user);localStorage.setItem('ght',token);
+      const repo=document.getElementById('gh-repo').value.trim();
+      if(repo)localStorage.setItem('ghr',repo);
+    } else {res.textContent='❌ Token inválido';res.style.color='#c0392b'}
+  }catch(e){res.textContent='❌ Erro de conexão';res.style.color='#c0392b'}
+}
+async function deployGH(){
+  const user=document.getElementById('gh-user').value.trim()||localStorage.getItem('ghu');
+  const repo=document.getElementById('gh-repo').value.trim()||localStorage.getItem('ghr');
+  const token=document.getElementById('gh-token').value.trim()||localStorage.getItem('ght');
+  const st=document.getElementById('st-auto');
+  if(!user||!repo||!token){st.className='status-box err';st.style.display='block';st.textContent='Configure as credenciais do GitHub primeiro.';return}
+  st.className='status-box wait';st.style.display='block';st.textContent='⏳ Publicando…';
+  const content=btoa(unescape(encodeURIComponent(buildHTML())));
+  try{
+    let sha='';
+    try{const r=await fetch(`https://api.github.com/repos/${user}/${repo}/contents/index.html`,{headers:{Authorization:`token ${token}`}});if(r.ok){const d=await r.json();sha=d.sha}}catch(e){}
+    const body={message:'Atualização via admin',content};if(sha)body.sha=sha;
+    const r=await fetch(`https://api.github.com/repos/${user}/${repo}/contents/index.html`,{
+      method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.ok){
+      st.className='status-box ok';
+      st.innerHTML='✅ <strong>Publicado!</strong> O Netlify irá atualizar o site automaticamente em alguns segundos.';
+      toast('✅ Publicado!');
+    } else {const e=await r.json();st.className='status-box err';st.textContent='❌ '+(e.message||'Erro. Verifique as credenciais.')}
+  }catch(e){st.className='status-box err';st.textContent='❌ Erro de conexão.'}
+}
+
+/* GERAR HTML */
+function buildHTML(){
+  const c=cfg;
+  const topbar=c.topbar||'🌸 Achadinhos que encantam e facilitam o seu dia a dia 🤍';
+  const tagline=c.tagline||'Achadinhos com amor para você';
+  const h1=c.h1||'Achadinhos';const h2=c.h2||'para o seu lar';
+  const hsub=c.hsub||'Produtos lindos, práticos e com preços que cabem no bolso!';
+  const hbtn=c.hbtn||'Ver Produtos';
+  const sec=c.sec||'Produtos em Destaque';
+  const footer=c.footer||'Achadinhos com amor para você · garimpadinhos.shop';
+  const insta=c.insta||'';const whats=c.whats||'';
+  const rosa=c.rosa||'#d4856a';const bg=c.bg||'#f7e8e0';
+  const verde=c.verde||'#7a8c6e';const marrom=c.marrom||'#5a3e32';
+  const banner=c.bannerUrl||'';
+  const bgImg=c.bgImgUrl||'';
+  const social=(insta||whats)?`<div style="margin-top:10px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
+    ${insta?`<a href="${insta.startsWith('http')?insta:'https://instagram.com/'+insta.replace('@','')}" target="_blank" rel="noopener" style="color:var(--rosa-medio);font-size:.82rem">📸 Instagram</a>`:''}
+    ${whats?`<a href="https://wa.me/${whats}" target="_blank" rel="noopener" style="color:var(--rosa-medio);font-size:.82rem">💬 WhatsApp</a>`:''}
+  </div>`:'';
+  const PJ=JSON.stringify(prods,null,2);
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Garimpadinhos – Achadinhos com Amor para Você</title>
+  <meta name="description" content="${hsub}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--rosa-claro:${bg};--rosa-medio:#e8c4b0;--rosa-forte:${rosa};--rosa-btn:${rosa};--verde-sage:${verde};--verde-escuro:${verde}dd;--marrom:${marrom};--creme:#fdf6f0;--branco:#fff;--texto:${marrom};--texto-suave:#8a7060;--sombra:0 4px 20px rgba(90,62,50,.10)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{font-family:'Lato',sans-serif;background:var(--rosa-claro);color:var(--texto);line-height:1.6;${bgImg?`background-image:url('${bgImg}');background-size:cover;background-attachment:fixed;background-position:center;`:`background-image:repeating-conic-gradient(rgba(216,180,160,0.18) 0% 25%,transparent 0% 50%);background-size:40px 40px;`}}
+    a{text-decoration:none;color:inherit}img{max-width:100%;display:block}ul{list-style:none}
+    .top-bar{background:var(--rosa-medio);text-align:center;padding:8px 16px;font-size:.82rem;letter-spacing:.04em;color:var(--marrom)}
+    header{background:var(--creme);padding:20px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--sombra);border-bottom:2px solid var(--rosa-medio)}
+    .header-logo{display:flex;flex-direction:column;align-items:center;line-height:1}
+    .header-logo h1{font-family:'Dancing Script',cursive;font-size:clamp(2rem,5vw,3rem);color:var(--marrom);display:flex;align-items:center;gap:6px}
+    .header-logo h1 span{color:var(--rosa-forte);font-size:.7em}
+    .header-logo .sub{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--verde-sage);font-weight:700;margin-top:2px}
+    .sw{display:flex;align-items:center;background:var(--rosa-claro);border:1.5px solid var(--rosa-medio);border-radius:50px;padding:6px 14px;gap:8px}
+    .sw input{border:none;background:transparent;outline:none;font-family:'Lato',sans-serif;font-size:.85rem;color:var(--texto);width:160px}
+    nav{background:var(--verde-sage);padding:0 5%}
+    nav ul{display:flex;flex-wrap:wrap}
+    nav ul li a{display:block;padding:13px 20px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#fff;transition:background .2s}
+    nav ul li a:hover{background:var(--verde-escuro)}
+    .ntgl{display:none;background:none;border:none;cursor:pointer;padding:14px 5%;width:100%;text-align:left;font-size:1.4rem;color:#fff}
+    .hero{background:var(--creme);display:flex;align-items:center;gap:40px;padding:50px 5%;position:relative;overflow:hidden;min-height:360px}
+    .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--creme) 55%,var(--rosa-claro) 100%)}
+    .ht{position:relative;max-width:480px}
+    .ht .pre{font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:8px}
+    .ht h2{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,3.2rem);line-height:1.15;color:var(--marrom)}
+    .ht .cur{font-family:'Dancing Script',cursive;color:var(--rosa-forte);font-size:clamp(1.8rem,4vw,2.6rem);display:block;margin-top:4px}
+    .ht p{margin:18px 0 28px;color:var(--texto-suave);font-size:1rem;max-width:360px}
+    .btn-p{display:inline-block;background:var(--verde-sage);color:#fff;padding:13px 32px;border-radius:4px;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;transition:background .2s,transform .15s}
+    .btn-p:hover{background:var(--verde-escuro);transform:translateY(-2px)}
+    .hi{flex:1;max-width:560px;min-height:260px;border-radius:12px;overflow:hidden}
+    .hph{width:100%;height:300px;background:linear-gradient(135deg,var(--rosa-medio),var(--rosa-claro));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:4rem}
+    .sec{padding:50px 5%}
+    .stit{text-align:center;margin-bottom:36px}
+    .stit h3{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);color:var(--marrom);display:flex;align-items:center;justify-content:center;gap:10px}
+    .stit h3::before,.stit h3::after{content:'✦';color:var(--rosa-forte);font-size:.7em}
+    .fils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:36px}
+    .fb{background:var(--creme);border:1.5px solid var(--rosa-medio);color:var(--texto-suave);padding:8px 20px;border-radius:50px;font-size:.8rem;font-family:'Lato',sans-serif;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .2s}
+    .fb:hover,.fb.a{background:var(--verde-sage);border-color:var(--verde-sage);color:#fff}
+    .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px}
+    .pc{background:var(--branco);border-radius:12px;overflow:hidden;box-shadow:var(--sombra);transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column}
+    .pc:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(90,62,50,.16)}
+    .pw{position:relative;padding-top:80%;background:var(--rosa-claro);overflow:hidden}
+    .pw img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+    .pc:hover .pw img{transform:scale(1.06)}
+    .pbdg{position:absolute;top:10px;left:10px;background:var(--rosa-forte);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.08em;padding:3px 10px;border-radius:50px;text-transform:uppercase}
+    .pi{padding:16px;display:flex;flex-direction:column;flex:1;gap:6px}
+    .pcat{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--verde-sage);font-weight:700}
+    .pn{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--marrom);line-height:1.3}
+    .pd{font-size:.78rem;color:var(--texto-suave);line-height:1.5;flex:1}
+    .pp{font-size:1.1rem;font-weight:700;color:var(--rosa-forte);margin-top:6px}
+    .bs{display:block;text-align:center;background:var(--rosa-btn);color:#fff;padding:10px;border-radius:6px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:background .2s,transform .15s;margin-top:10px}
+    .bs:hover{background:var(--rosa-forte);transform:translateY(-1px)}
+    .nr{text-align:center;padding:60px 20px;color:var(--texto-suave);font-size:1rem;display:none}
+    .tb{background:var(--creme);border-top:2px solid var(--rosa-medio);border-bottom:2px solid var(--rosa-medio);padding:30px 5%}
+    .tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px}
+    .ti{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .tic{font-size:1.8rem}
+    .ti strong{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--marrom)}
+    .ti span{font-size:.72rem;color:var(--texto-suave)}
+    footer{background:var(--marrom);color:rgba(255,255,255,.8);text-align:center;padding:28px 5%;font-size:.8rem;line-height:1.8}
+    footer a{color:var(--rosa-medio)}
+    .fl{font-family:'Dancing Script',cursive;font-size:1.6rem;color:#fff;margin-bottom:8px}
+    @media(max-width:768px){.ntgl{display:block;background:var(--verde-sage)}nav ul{display:none;flex-direction:column}nav ul.op{display:flex}nav ul li a{padding:12px 5%;border-top:1px solid rgba(255,255,255,.1)}.hero{flex-direction:column;padding:36px 5%}.sw input{width:120px}}
+    @media(max-width:480px){.pgrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px}.sec{padding:36px 4%}.sw{display:none}}
+  </style>
+</head>
+<body>
+<div class="top-bar">${topbar}</div>
+<header>
+  <div class="header-logo">
+    <h1>Garimpadinhos<span>♥</span></h1>
+    <span class="sub">${tagline}</span>
+  </div>
+  <div class="sw"><span>🔍</span><input type="text" id="si" placeholder="Buscar produto…" oninput="rP()"/></div>
+</header>
+<button class="ntgl" onclick="document.getElementById('nm').classList.toggle('op')">☰ Categorias</button>
+<nav><ul id="nm">
+  <li><a href="#p" onclick="fC('Todos')">Início</a></li>
+  <li><a href="#p" onclick="fC('Todos')">Todos os Produtos</a></li>
+  <li><a href="#p" onclick="fC('Casa e Decoração')">Casa e Decoração</a></li>
+  <li><a href="#p" onclick="fC('Cozinha')">Cozinha</a></li>
+  <li><a href="#p" onclick="fC('Beleza')">Beleza</a></li>
+  <li><a href="#p" onclick="fC('Acessórios')">Acessórios</a></li>
+  <li><a href="#p" onclick="fC('Organização')">Organização</a></li>
+</ul></nav>
+<section class="hero">
+  <div class="ht">
+    <p class="pre">Seleção Especial de</p>
+    <h2>${h1}<br><span class="cur">${h2}</span></h2>
+    <p>${hsub}</p>
+    <a href="#p" class="btn-p">${hbtn}</a>
+  </div>
+  <div class="hi">${banner?`<img src="${banner}" alt="Banner" style="width:100%;height:100%;object-fit:cover;border-radius:12px"/>`:`<div class="hph">🌸</div>`}</div>
+</section>
+<section class="sec" id="p">
+  <div class="stit"><h3>${sec}</h3></div>
+  <div class="fils" id="fls"></div>
+  <div class="pgrid" id="pg"></div>
+  <p class="nr" id="nr">Nenhum produto encontrado. 🌸</p>
+</section>
+<div class="tb"><div class="tg">
+  <div class="ti"><span class="tic">🛡️</span><strong>Compra Segura</strong><span>Redirecionamos para a Shopee</span></div>
+  <div class="ti"><span class="tic">🚚</span><strong>Envio Rápido</strong><span>Entrega direto na sua casa</span></div>
+  <div class="ti"><span class="tic">⭐</span><strong>Qualidade Garantida</strong><span>Produtos selecionados com cuidado</span></div>
+  <div class="ti"><span class="tic">💰</span><strong>Os Melhores Preços</strong><span>Achadinhos que cabem no bolso</span></div>
+</div></div>
+<footer>
+  <div class="fl">Garimpadinhos ♥</div>
+  <p>${footer}</p>
+  ${social}
+  <p style="margin-top:6px;font-size:.72rem;opacity:.6">Links de afiliados — ao comprar via Shopee por este site você apoia o projeto sem custo extra. 🌸</p>
+</footer>
+<script>
+const PRODS=${PJ};
+const EM={"Casa e Decoração":"🏡","Cozinha":"🍳","Beleza":"💄","Acessórios":"👜","Organização":"🗂️"};
+let aC="Todos";
+function rF(){const cs=["Todos",...new Set(PRODS.map(p=>p.category))];document.getElementById("fls").innerHTML=cs.map(c=>\`<button class="fb \${c===aC?'a':''}" onclick="fC('\${c}')">\${c}</button>\`).join("")}
+function fC(c){aC=c;rF();rP()}
+function rP(){
+  const q=(document.getElementById("si")?.value||"").toLowerCase();
+  const g=document.getElementById("pg");const n=document.getElementById("nr");
+  const f=PRODS.filter(p=>(aC==="Todos"||p.category===aC)&&(!q||p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)));
+  if(!f.length){g.innerHTML="";n.style.display="block";return}n.style.display="none";
+  g.innerHTML=f.map(p=>{
+    const imgs=(p.images&&p.images.length)?p.images:[p.img].filter(Boolean);
+    const fi=imgs[0]||"";const em=EM[p.category]||"🛍️";
+    const ih=fi?\`<img src="\${fi}" alt="\${p.name}" loading="lazy"/>\`:\`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem">\${em}</div>\`;
+    const bd=p.badge?\`<span class="pbdg">\${p.badge}</span>\`:"";
+    return\`<div class="pc"><div class="pw">\${ih}\${bd}</div><div class="pi"><span class="pcat">\${p.category}</span><h4 class="pn">\${p.name}</h4><p class="pd">\${p.desc||""}</p><p class="pp">\${p.price}</p><a href="\${p.link}" target="_blank" rel="noopener" class="bs">🛍️ Ver na Shopee</a></div></div>\`
+  }).join("")
+}
+rF();rP();
+<\/script>
+</body></html>`;
+}
+
+function baixarHTML(){
+  const html=buildHTML();
+  const b=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='index.html';a.click();
+  const st=document.getElementById('st-manual');
+  st.style.display='block';
+  st.innerHTML=`✅ <strong>index.html</strong> baixado com <strong>${prods.length} produto(s)</strong>. Faça upload no Netlify para atualizar o site.`;
+  toast('✅ Baixado!');
+}
+
+/* INIT */
+function init(){
+  renderLista();
+  const u=localStorage.getItem('ghu');const r=localStorage.getItem('ghr');const t=localStorage.getItem('ght');
+  if(u)document.getElementById('gh-user').value=u;
+  if(r)document.getElementById('gh-repo').value=r;
+  if(t)document.getElementById('gh-token').value=t;
+}
+if(sessionStorage.getItem('ga')==='1')init();
+</script>
+</body>
+</html>
