@@ -349,11 +349,16 @@
               5) Cole os dados abaixo e clique em Testar.
             </div>
             <label>Usuário do GitHub</label>
-            <input type="text" id="gh-user" placeholder="seu-usuario" />
+            <input type="text" id="gh-user" placeholder="seu-usuario" oninput="autoSaveGH()" />
             <label>Nome do repositório</label>
-            <input type="text" id="gh-repo" placeholder="garimpadinhos" />
+            <input type="text" id="gh-repo" placeholder="garimpadinhos" oninput="autoSaveGH()" />
             <label>Token de acesso</label>
-            <input type="password" id="gh-token" placeholder="ghp_…" />
+            <input type="password" id="gh-token" placeholder="ghp_…" oninput="autoSaveGH()" />
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <input type="checkbox" id="gh-remember" checked onchange="toggleRemember()" style="width:auto;margin:0;cursor:pointer" />
+              <label for="gh-remember" style="font-size:.75rem;color:var(--suave);letter-spacing:normal;text-transform:none;cursor:pointer;font-weight:400">Lembrar credenciais neste navegador</label>
+              <span id="gh-saved-ind" style="font-size:.72rem;color:var(--verde);display:none">✓ salvo</span>
+            </div>
             <button class="btn-test" onclick="testGH()">Testar conexão</button>
             <div id="gh-result" style="font-size:.78rem;margin-top:8px"></div>
           </div>
@@ -533,7 +538,8 @@ function resetForm(){
   document.getElementById('formTitle').textContent='＋ Novo produto';
 }
 function editarProd(id){
-  const p=prods.find(x=>x.id===id);if(!p)return;
+  // eslint-disable-next-line eqeqeq
+  const p=prods.find(x=>x.id==id);if(!p)return;
   editId=id;
   document.getElementById('f-name').value=p.name;
   document.getElementById('f-price').value=p.price;
@@ -552,7 +558,8 @@ function editarProd(id){
 }
 function deletarProd(id){
   if(!confirm('Deletar este produto?'))return;
-  prods=prods.filter(p=>p.id!==id);saveP();renderLista();toast('Produto removido');
+  // eslint-disable-next-line eqeqeq — ids podem chegar como string do onclick ou número do Date.now()
+  prods=prods.filter(p=>p.id!=id);saveP();renderLista();toast('Produto removido');
 }
 function salvarProd(){
   const name=document.getElementById('f-name').value.trim();
@@ -565,7 +572,8 @@ function salvarProd(){
     images,img:images[0]||'',
     link:document.getElementById('f-link').value.trim(),
     badge:document.getElementById('f-badge').value};
-  if(editId){prods=prods.map(x=>x.id===editId?p:x)}else{prods.push(p)}
+  // eslint-disable-next-line eqeqeq
+  if(editId){prods=prods.map(x=>x.id==editId?p:x)}else{prods.push(p)}
   saveP();renderLista();resetForm();goTab('lista');
   toast(editId?'✅ Produto atualizado!':'✅ Produto adicionado!');
 }
@@ -636,6 +644,31 @@ function setDeploy(m){
   document.getElementById('sec-manual').style.display=m==='manual'?'block':'none';
   document.getElementById('sec-auto').style.display=m==='auto'?'block':'none';
 }
+let ghSaveTimer=null;
+function autoSaveGH(){
+  const remember=document.getElementById('gh-remember')?.checked;
+  if(!remember)return;
+  clearTimeout(ghSaveTimer);
+  ghSaveTimer=setTimeout(()=>{
+    const u=document.getElementById('gh-user').value.trim();
+    const r=document.getElementById('gh-repo').value.trim();
+    const t=document.getElementById('gh-token').value.trim();
+    if(u)localStorage.setItem('ghu',u);
+    if(r)localStorage.setItem('ghr',r);
+    if(t)localStorage.setItem('ght',t);
+    const ind=document.getElementById('gh-saved-ind');
+    if(ind){ind.style.display='inline';setTimeout(()=>ind.style.display='none',2000)}
+  },600);
+}
+function toggleRemember(){
+  const remember=document.getElementById('gh-remember')?.checked;
+  if(!remember){
+    localStorage.removeItem('ghu');localStorage.removeItem('ghr');localStorage.removeItem('ght');
+    toast('Credenciais removidas do navegador');
+  } else {
+    autoSaveGH();
+  }
+}
 async function testGH(){
   const user=document.getElementById('gh-user').value.trim();
   const token=document.getElementById('gh-token').value.trim();
@@ -647,13 +680,19 @@ async function testGH(){
     const d=await r.json();
     if(d.login){
       res.textContent=`✅ Conectado como ${d.login}`;res.style.color='#3b6d11';
-      localStorage.setItem('ghu',user);localStorage.setItem('ght',token);
-      const repo=document.getElementById('gh-repo').value.trim();
-      if(repo)localStorage.setItem('ghr',repo);
+      if(document.getElementById('gh-remember')?.checked){
+        localStorage.setItem('ghu',user);localStorage.setItem('ght',token);
+        const repo=document.getElementById('gh-repo').value.trim();
+        if(repo)localStorage.setItem('ghr',repo);
+      }
     } else {res.textContent='❌ Token inválido';res.style.color='#c0392b'}
   }catch(e){res.textContent='❌ Erro de conexão';res.style.color='#c0392b'}
 }
 async function deployGH(){
+  // sempre sincroniza do localStorage antes de publicar
+  prods=JSON.parse(localStorage.getItem('gp')||'[]');
+  cfg=JSON.parse(localStorage.getItem('gc')||'{}');
+  if(prods.length===0&&!confirm(`⚠️ Atenção: não há produtos cadastrados.\nPublicar assim vai deixar o site sem produtos.\n\nContinuar mesmo assim?`))return;
   const user=document.getElementById('gh-user').value.trim()||localStorage.getItem('ghu');
   const repo=document.getElementById('gh-repo').value.trim()||localStorage.getItem('ghr');
   const token=document.getElementById('gh-token').value.trim()||localStorage.getItem('ght');
@@ -669,14 +708,16 @@ async function deployGH(){
       method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(r.ok){
       st.className='status-box ok';
-      st.innerHTML='✅ <strong>Publicado!</strong> O Cloudflare Pages irá atualizar o site automaticamente em alguns segundos.';
-      toast('✅ Publicado!');
+      st.innerHTML=`✅ <strong>Publicado com ${prods.length} produto(s)!</strong> O Cloudflare Pages irá atualizar o site automaticamente em alguns segundos.`;
+      toast(`✅ Publicado! (${prods.length} produtos)`);
     } else {const e=await r.json();st.className='status-box err';st.textContent='❌ '+(e.message||'Erro. Verifique as credenciais.')}
   }catch(e){st.className='status-box err';st.textContent='❌ Erro de conexão.'}
 }
 
 /* GERAR HTML */
 function buildHTML(){
+  // IMPORTANTE: sempre lê do localStorage para garantir dados atualizados
+  const currentProds = JSON.parse(localStorage.getItem('gp')||'[]');
   const c=cfg;
   const topbar=c.topbar||'🌸 Achadinhos que encantam e facilitam o seu dia a dia 🤍';
   const tagline=c.tagline||'Achadinhos com amor para você';
@@ -700,7 +741,7 @@ function buildHTML(){
     socialHtml += '</div>';
   }
   const social = socialHtml;
-  const PJ=JSON.stringify(prods,null,2);
+  const PJ=JSON.stringify(currentProds,null,2);
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -844,6 +885,10 @@ rF();rP();
 }
 
 function baixarHTML(){
+  // sempre sincroniza do localStorage antes de gerar
+  prods=JSON.parse(localStorage.getItem('gp')||'[]');
+  cfg=JSON.parse(localStorage.getItem('gc')||'{}');
+  if(prods.length===0&&!confirm('⚠️ Não há produtos cadastrados.\nBaixar o index.html agora vai deixar o site sem produtos.\n\nContinuar?'))return;
   const html=buildHTML();
   const b=new Blob([html],{type:'text/html'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='index.html';a.click();
@@ -857,6 +902,10 @@ function baixarHTML(){
 function init(){
   renderLista();
   const u=localStorage.getItem('ghu');const r=localStorage.getItem('ghr');const t=localStorage.getItem('ght');
+  // só preenche se existir credencial salva (ou seja, o usuário tinha "lembrar" ativo)
+  const hasCredentials = u||r||t;
+  const rememberChk=document.getElementById('gh-remember');
+  if(rememberChk) rememberChk.checked=!!hasCredentials;
   if(u)document.getElementById('gh-user').value=u;
   if(r)document.getElementById('gh-repo').value=r;
   if(t)document.getElementById('gh-token').value=t;
