@@ -333,18 +333,18 @@
 
         <div class="deploy-opt on" id="opt-manual" onclick="setDeploy('manual')">
           <h4>⬇ Download manual <span class="simples">Simples</span></h4>
-          <p>Baixa o index.html atualizado e você faz upload no Netlify. Leva 1 minuto.</p>
+          <p>Baixa o index.html atualizado e você faz upload no Cloudflare Pages. Leva 1 minuto.</p>
         </div>
 
         <div class="deploy-opt" id="opt-auto" onclick="setDeploy('auto')">
           <h4>⚡ Publicação automática via GitHub <span class="rec">Recomendado</span></h4>
-          <p>Configure uma vez e o site atualiza sozinho. Sem precisar baixar nada.</p>
+          <p>Configure uma vez e o site atualiza sozinho sempre que publicar. Sem precisar baixar nada.</p>
           <div class="gh-setup" id="ghSetup">
             <div class="gh-help">
               <strong>Como configurar (1 vez só):</strong><br>
               1) Crie conta em <a href="https://github.com" target="_blank">github.com</a><br>
               2) Crie um repositório público chamado <strong>garimpadinhos</strong><br>
-              3) Conecte esse repositório ao Netlify em <em>Site → Build &amp; deploy → Link repository</em><br>
+              3) Conecte esse repositório ao Cloudflare Pages em <em>Workers &amp; Pages → Create → Pages → Connect to Git</em><br>
               4) Gere um token em <em>GitHub → Settings → Developer settings → Tokens (classic)</em> com permissão <strong>repo</strong><br>
               5) Cole os dados abaixo e clique em Testar.
             </div>
@@ -363,8 +363,8 @@
           <div class="steps-box">
             <ol>
               <li>Clique em <strong>"Baixar index.html"</strong></li>
-              <li>Acesse <strong>netlify.com</strong> e entre na conta</li>
-              <li>Arraste o novo <strong>index.html</strong> na área de deploy do projeto</li>
+              <li>Acesse <strong>cloudflare.com</strong> → <em>Workers &amp; Pages → seu projeto</em></li>
+              <li>Vá em <strong>Deployments → Upload assets</strong> e arraste o novo <strong>index.html</strong></li>
               <li>Pronto — site atualizado! 🎉</li>
             </ol>
           </div>
@@ -376,8 +376,8 @@
           <div class="steps-box">
             <ol>
               <li>Preencha as credenciais do GitHub acima e clique em <strong>Testar conexão</strong></li>
-              <li>No Netlify conecte o repositório (só precisa fazer isso uma vez)</li>
-              <li>Clique em <strong>"Publicar agora"</strong> — o Netlify detecta e atualiza automaticamente ⚡</li>
+              <li>No Cloudflare Pages conecte o repositório (só precisa fazer isso uma vez)</li>
+              <li>Clique em <strong>"Publicar agora"</strong> — o Cloudflare detecta e atualiza automaticamente ⚡</li>
             </ol>
           </div>
           <button class="btn-export" onclick="deployGH()">⚡ Publicar agora</button>
@@ -669,7 +669,7 @@ async function deployGH(){
       method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(r.ok){
       st.className='status-box ok';
-      st.innerHTML='✅ <strong>Publicado!</strong> O Netlify irá atualizar o site automaticamente em alguns segundos.';
+      st.innerHTML='✅ <strong>Publicado!</strong> O Cloudflare Pages irá atualizar o site automaticamente em alguns segundos.';
       toast('✅ Publicado!');
     } else {const e=await r.json();st.className='status-box err';st.textContent='❌ '+(e.message||'Erro. Verifique as credenciais.')}
   }catch(e){st.className='status-box err';st.textContent='❌ Erro de conexão.'}
@@ -690,10 +690,16 @@ function buildHTML(){
   const verde=c.verde||'#7a8c6e';const marrom=c.marrom||'#5a3e32';
   const banner=c.bannerUrl||'';
   const bgImg=c.bgImgUrl||'';
-  const social=(insta||whats)?`<div style="margin-top:10px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
-    ${insta?`<a href="${insta.startsWith('http')?insta:'https://instagram.com/'+insta.replace('@','')}" target="_blank" rel="noopener" style="color:var(--rosa-medio);font-size:.82rem">📸 Instagram</a>`:''}
-    ${whats?`<a href="https://wa.me/${whats}" target="_blank" rel="noopener" style="color:var(--rosa-medio);font-size:.82rem">💬 WhatsApp</a>`:''}
-  </div>`:'';
+  const instaUrl = insta ? (insta.startsWith('http') ? insta : 'https://instagram.com/'+insta.replace('@','')) : '';
+  const whatsUrl = whats ? 'https://wa.me/'+whats : '';
+  let socialHtml = '';
+  if(insta || whats){
+    socialHtml = '<div style="margin-top:10px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap">';
+    if(insta) socialHtml += '<a href="'+instaUrl+'" target="_blank" rel="noopener" style="color:var(--rosa-medio);font-size:.9rem;display:flex;align-items:center;gap:5px;text-decoration:none">📸 Instagram</a>';
+    if(whats) socialHtml += '<a href="'+whatsUrl+'" target="_blank" rel="noopener" style="color:var(--rosa-medio);font-size:.9rem;display:flex;align-items:center;gap:5px;text-decoration:none">💬 WhatsApp</a>';
+    socialHtml += '</div>';
+  }
+  const social = socialHtml;
   const PJ=JSON.stringify(prods,null,2);
   return `<!DOCTYPE html>
 <html lang="pt-BR">
