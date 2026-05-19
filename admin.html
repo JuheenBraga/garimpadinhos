@@ -203,10 +203,11 @@
             <select id="f-cat">
               <option value="">Selecionar…</option>
               <option>Casa e Decoração</option>
-              <option>Cozinha</option>
-              <option>Beleza</option>
+              <option>Moda e Beleza</option>
               <option>Acessórios</option>
-              <option>Organização</option>
+              <option>Móveis</option>
+              <option>Mercado</option>
+              <option>Baby</option>
             </select>
           </div>
           <div class="fld">
@@ -214,8 +215,12 @@
             <input type="text" id="f-price" placeholder="R$ 49,90" />
           </div>
           <div class="fld fcol">
-            <label>Descrição</label>
-            <textarea id="f-desc" placeholder="Descrição curta e atrativa do produto…"></textarea>
+            <label>Descrição curta <span style="font-weight:400;opacity:.7">(aparece no card)</span></label>
+            <textarea id="f-desc" placeholder="Descrição resumida, aparece embaixo da foto no card…"></textarea>
+          </div>
+          <div class="fld fcol">
+            <label>Descrição expandida <span style="font-weight:400;opacity:.7">(aparece ao abrir o produto)</span></label>
+            <textarea id="f-desc-full" placeholder="Descrição completa — aparece quando o cliente expande o produto para ver mais detalhes…" style="min-height:90px"></textarea>
           </div>
 
           <!-- FOTOS -->
@@ -416,7 +421,7 @@ if(sessionStorage.getItem('ga')==='1'){
 }
 
 /* DADOS */
-const EMOJIS={"Casa e Decoração":"🏡","Cozinha":"🍳","Beleza":"💄","Acessórios":"👜","Organização":"🗂️"};
+const EMOJIS={"Casa e Decoração":"🏡","Moda e Beleza":"💄","Acessórios":"👜","Móveis":"🛋️","Mercado":"🛒","Baby":"🍼"};
 let prods=JSON.parse(localStorage.getItem('gp')||'[]');
 let cfg=JSON.parse(localStorage.getItem('gc')||'{}');
 let editId=null;
@@ -530,7 +535,7 @@ function setFile(id,input){
 /* FORM */
 function resetForm(){
   editId=null;fotos=[];
-  ['f-name','f-price','f-desc','f-link'].forEach(id=>document.getElementById(id).value='');
+  ['f-name','f-price','f-desc','f-desc-full','f-link'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-cat').value='';
   document.getElementById('f-badge').value='Top Vendas';
   document.querySelectorAll('.badge-opt').forEach(b=>b.classList.toggle('on',b.textContent==='Top Vendas'));
@@ -544,6 +549,7 @@ function editarProd(id){
   document.getElementById('f-name').value=p.name;
   document.getElementById('f-price').value=p.price;
   document.getElementById('f-desc').value=p.desc||'';
+  document.getElementById('f-desc-full').value=p.descFull||'';
   document.getElementById('f-link').value=p.link||'';
   document.getElementById('f-cat').value=p.category;
   document.getElementById('f-badge').value=p.badge||'';
@@ -569,6 +575,7 @@ function salvarProd(){
   const images=fotos.map(f=>f.val).filter(Boolean);
   const p={id:editId||Date.now(),name,category:cat,price,
     desc:document.getElementById('f-desc').value.trim(),
+    descFull:document.getElementById('f-desc-full').value.trim(),
     images,img:images[0]||'',
     link:document.getElementById('f-link').value.trim(),
     badge:document.getElementById('f-badge').value};
@@ -801,6 +808,36 @@ function buildHTML(){
     .bs{display:block;text-align:center;background:var(--rosa-btn);color:#fff;padding:10px;border-radius:6px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:background .2s,transform .15s;margin-top:10px}
     .bs:hover{background:var(--rosa-forte);transform:translateY(-1px)}
     .nr{text-align:center;padding:60px 20px;color:var(--texto-suave);font-size:1rem;display:none}
+    .pw{cursor:pointer}
+    .sarr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.75);border:none;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;color:var(--marrom);z-index:2;opacity:0;transition:opacity .2s;line-height:1}
+    .pc:hover .sarr{opacity:1}.sarr.prev{left:6px}.sarr.next{right:6px}
+    .sdots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px;pointer-events:none}
+    .sd{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);transition:background .2s,transform .2s;display:inline-block}
+    .sd.on{background:#fff;transform:scale(1.3)}
+    .mod-ov{display:none;position:fixed;inset:0;background:rgba(60,38,28,.72);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
+    .mod-ov.open{display:flex}
+    .mod-bx{background:var(--creme);border-radius:16px;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;display:flex;box-shadow:0 24px 60px rgba(60,38,28,.35);position:relative;animation:mIn .22s ease}
+    @keyframes mIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+    .mod-cl{position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.4rem;color:var(--texto-suave);cursor:pointer;z-index:10;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s}
+    .mod-cl:hover{background:var(--rosa-medio)}
+    .mod-gal{flex:0 0 46%;position:relative;background:var(--rosa-claro);border-radius:16px 0 0 16px;overflow:hidden;min-height:320px}
+    .mod-gi{width:100%;height:100%;min-height:320px;object-fit:cover;display:block}
+    .mod-ph{width:100%;height:320px;display:flex;align-items:center;justify-content:center;font-size:5rem}
+    .mod-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.80);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;color:var(--marrom);z-index:3}
+    .mod-arr.prev{left:10px}.mod-arr.next{right:10px}
+    .mod-ths{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+    .mth{width:46px;height:46px;border-radius:6px;object-fit:cover;cursor:pointer;border:2px solid transparent}
+    .mth.on{border-color:var(--rosa-forte)}
+    .mod-inf{flex:1;padding:28px 24px 24px 22px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+    .mod-cat{font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--verde-sage);font-weight:700}
+    .mod-nm{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--marrom);line-height:1.3}
+    .mod-pr{font-size:1.35rem;font-weight:700;color:var(--rosa-forte)}
+    .mod-ds{font-size:.87rem;color:var(--texto-suave);line-height:1.65}
+    .mod-dv{height:1px;background:var(--rosa-medio);margin:4px 0}
+    .mod-df{font-size:.84rem;color:var(--texto);line-height:1.75}
+    .mod-btn{display:block;text-align:center;background:var(--rosa-btn);color:#fff;padding:13px;border-radius:8px;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:auto;transition:background .2s}
+    .mod-btn:hover{background:var(--rosa-forte)}
+    @media(max-width:620px){.mod-bx{flex-direction:column}.mod-gal{border-radius:16px 16px 0 0;flex:none;min-height:240px}.mod-gi{min-height:240px}.mod-ph{height:240px}.mod-ths{display:none}}
     .tb{background:var(--creme);border-top:2px solid var(--rosa-medio);border-bottom:2px solid var(--rosa-medio);padding:30px 5%}
     .tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px}
     .ti{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -828,10 +865,11 @@ function buildHTML(){
   <li><a href="#p" onclick="fC('Todos')">Início</a></li>
   <li><a href="#p" onclick="fC('Todos')">Todos os Produtos</a></li>
   <li><a href="#p" onclick="fC('Casa e Decoração')">Casa e Decoração</a></li>
-  <li><a href="#p" onclick="fC('Cozinha')">Cozinha</a></li>
-  <li><a href="#p" onclick="fC('Beleza')">Beleza</a></li>
+  <li><a href="#p" onclick="fC('Moda e Beleza')">Moda e Beleza</a></li>
   <li><a href="#p" onclick="fC('Acessórios')">Acessórios</a></li>
-  <li><a href="#p" onclick="fC('Organização')">Organização</a></li>
+  <li><a href="#p" onclick="fC('Móveis')">Móveis</a></li>
+  <li><a href="#p" onclick="fC('Mercado')">Mercado</a></li>
+  <li><a href="#p" onclick="fC('Baby')">Baby</a></li>
 </ul></nav>
 <section class="hero">
   <div class="ht">
@@ -860,25 +898,92 @@ function buildHTML(){
   ${social}
   <p style="margin-top:6px;font-size:.72rem;opacity:.6">Links de afiliados — ao comprar via Shopee por este site você apoia o projeto sem custo extra. 🌸</p>
 </footer>
+<div class="mod-ov" id="mod" onclick="if(event.target===this)cM()">
+  <div class="mod-bx">
+    <button class="mod-cl" onclick="cM()">&#10005;</button>
+    <div class="mod-gal">
+      <div class="mod-ph" id="mph">🛍️</div>
+      <img class="mod-gi" id="mim" src="" alt="" style="display:none"/>
+      <button class="mod-arr prev" id="map" onclick="mSl(-1)" style="display:none">&#8249;</button>
+      <button class="mod-arr next" id="man" onclick="mSl(1)"  style="display:none">&#8250;</button>
+      <div class="mod-ths" id="mth"></div>
+    </div>
+    <div class="mod-inf">
+      <span class="mod-cat" id="mc"></span>
+      <h2   class="mod-nm"  id="mn"></h2>
+      <p    class="mod-pr"  id="mp"></p>
+      <p    class="mod-ds"  id="mds"></p>
+      <div  class="mod-dv"  id="mdv" style="display:none"></div>
+      <p    class="mod-df"  id="mdf" style="display:none"></p>
+      <a    class="mod-btn" id="ml" href="#" target="_blank" rel="noopener">🛍️ Ver na Shopee</a>
+    </div>
+  </div>
+</div>
 <script>
 const PRODS=${PJ};
-const EM={"Casa e Decoração":"🏡","Cozinha":"🍳","Beleza":"💄","Acessórios":"👜","Organização":"🗂️"};
+const EM={"Casa e Decoração":"🏡","Moda e Beleza":"💄","Acessórios":"👜","Móveis":"🛋️","Mercado":"🛒","Baby":"🍼"};
 let aC="Todos";
 function rF(){const cs=["Todos",...new Set(PRODS.map(p=>p.category))];document.getElementById("fls").innerHTML=cs.map(c=>\`<button class="fb \${c===aC?'a':''}" onclick="fC('\${c}')">\${c}</button>\`).join("")}
 function fC(c){aC=c;rF();rP()}
 function rP(){
   const q=(document.getElementById("si")?.value||"").toLowerCase();
   const g=document.getElementById("pg");const n=document.getElementById("nr");
-  const f=PRODS.filter(p=>(aC==="Todos"||p.category===aC)&&(!q||p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)));
+  const f=PRODS.filter(p=>(aC==="Todos"||p.category===aC)&&(!q||p.name.toLowerCase().includes(q)||(p.desc||"").toLowerCase().includes(q)));
   if(!f.length){g.innerHTML="";n.style.display="block";return}n.style.display="none";
   g.innerHTML=f.map(p=>{
     const imgs=(p.images&&p.images.length)?p.images:[p.img].filter(Boolean);
-    const fi=imgs[0]||"";const em=EM[p.category]||"🛍️";
-    const ih=fi?\`<img src="\${fi}" alt="\${p.name}" loading="lazy"/>\`:\`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem">\${em}</div>\`;
+    const em=EM[p.category]||"🛍️";
     const bd=p.badge?\`<span class="pbdg">\${p.badge}</span>\`:"";
-    return\`<div class="pc"><div class="pw">\${ih}\${bd}</div><div class="pi"><span class="pcat">\${p.category}</span><h4 class="pn">\${p.name}</h4><p class="pd">\${p.desc||""}</p><p class="pp">\${p.price}</p><a href="\${p.link}" target="_blank" rel="noopener" class="bs">🛍️ Ver na Shopee</a></div></div>\`
+    let sl="";
+    if(imgs.length>0){
+      sl=\`<img src="\${imgs[0]}" alt="\${p.name}" loading="lazy" data-idx="0"/>\`;
+      if(imgs.length>1){
+        sl+=\`<button class="sarr prev" onclick="cSl(event,\${p.id},-1)">&#8249;</button><button class="sarr next" onclick="cSl(event,\${p.id},1)">&#8250;</button>\`;
+        sl+=\`<div class="sdots">\${imgs.map((_,i)=>\`<span class="sd\${i===0?' on':''}">\</span>\`).join("")}</div>\`;
+      }
+    }else{sl=\`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem">\${em}</div>\`}
+    return\`<div class="pc" data-id="\${p.id}"><div class="pw" onclick="oM(\${p.id})">\${sl}\${bd}</div><div class="pi"><span class="pcat">\${p.category}</span><h4 class="pn" style="cursor:pointer" onclick="oM(\${p.id})">\${p.name}</h4><p class="pd">\${p.desc||""}</p><p class="pp">\${p.price}</p><a href="\${p.link}" target="_blank" rel="noopener" class="bs">🛍️ Ver na Shopee</a></div></div>\`
   }).join("")
 }
+function cSl(e,id,d){
+  e.stopPropagation();
+  // eslint-disable-next-line eqeqeq
+  const p=PRODS.find(x=>x.id==id);if(!p)return;
+  const imgs=(p.images&&p.images.length)?p.images:[p.img].filter(Boolean);
+  if(imgs.length<2)return;
+  const card=document.querySelector(\`.pc[data-id="\${id}"]\`);if(!card)return;
+  const im=card.querySelector('img[data-idx]');if(!im)return;
+  let i=(parseInt(im.dataset.idx||0)+d+imgs.length)%imgs.length;
+  im.src=imgs[i];im.dataset.idx=i;
+  card.querySelectorAll('.sd').forEach((x,j)=>x.classList.toggle('on',j===i));
+}
+let _mi=[],_mx=0;
+function oM(id){
+  // eslint-disable-next-line eqeqeq
+  const p=PRODS.find(x=>x.id==id);if(!p)return;
+  _mi=(p.images&&p.images.length)?p.images:[p.img].filter(Boolean);_mx=0;
+  document.getElementById('mc').textContent=p.category;
+  document.getElementById('mn').textContent=p.name;
+  document.getElementById('mp').textContent=p.price;
+  document.getElementById('mds').textContent=p.desc||'';
+  document.getElementById('ml').href=p.link;
+  const fe=document.getElementById('mdf');const dv=document.getElementById('mdv');
+  if(p.descFull&&p.descFull.trim()){fe.textContent=p.descFull;fe.style.display='block';dv.style.display='block'}
+  else{fe.style.display='none';dv.style.display='none'}
+  mUi();document.getElementById('mod').classList.add('open');document.body.style.overflow='hidden';
+}
+function mUi(){
+  const im=document.getElementById('mim');const ph=document.getElementById('mph');
+  const ap=document.getElementById('map');const an=document.getElementById('man');const th=document.getElementById('mth');
+  if(_mi.length>0){im.src=_mi[_mx];im.style.display='block';ph.style.display='none'}
+  else{im.style.display='none';ph.style.display='flex'}
+  const mu=_mi.length>1;ap.style.display=mu?'flex':'none';an.style.display=mu?'flex':'none';
+  th.innerHTML=mu?_mi.map((s,i)=>\`<img class="mth\${i===_mx?' on':''}" src="\${s}" onclick="mGo(\${i})"/>\`).join(''):'';
+}
+function mSl(d){if(!_mi.length)return;_mx=(_mx+d+_mi.length)%_mi.length;mUi()}
+function mGo(i){_mx=i;mUi()}
+function cM(){document.getElementById('mod').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cM()});
 rF();rP();
 <\/script>
 </body></html>`;
